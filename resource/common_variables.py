@@ -17,5 +17,5 @@ USER_2_PASS = USER_1_PASS
 
 DEFAULT_OTP = '111111'
 
-TEST_MESSAGE = "Send message to AM2"
-REPLY_TEST_MESSAGE = "Reply message"
+TEST_MESSAGE = "send message"
+REPLY_TEST_MESSAGE = "reply message"

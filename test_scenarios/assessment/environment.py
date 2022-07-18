@@ -9,12 +9,14 @@ from libs.automation_libs.common_funcs import \
     set_default_test_case_behavior, retry_on_failure, \
     mapping_browser_name_and_device_with_scenario_outline
 from page_objects.web.home_page import HomePage
+from page_objects.android.welcome_screen import WelcomeScreen
 
 
 def before_feature(context, feature):
     for scenario_ in feature.scenarios:
         scenario_ = mapping_browser_name_and_device_with_scenario_outline(
-            scenario_, HomePage().driver.browser, "demo")
+            scenario_, HomePage().driver.browser,
+            WelcomeScreen().driver.device_name)
         retry_on_failure(scenario_)
 
 

@@ -174,13 +174,6 @@ class AbstractDriver(ABC):
         self.driver.save_screenshot(screenshot_path)
         self.logger.debug(f'Take screenshot {screenshot_path}')
         attach_file_to_report([screenshot_path])
-        if not ARGUMENTS.run_behave:
-            link_path = get_link_path(screenshot_path,
-                                      RuntimeVariable.CURRENT_LOG_DIR)
-            self.logger.info(
-                f'<a href="{link_path}"><img src="{link_path}" '
-                f'width="1500"></a>',
-                html=True)
 
     def click_on_element(self, locator: str) -> None:
         if locator.split("=")[0] == "coordinate":

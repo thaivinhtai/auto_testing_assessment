@@ -7,6 +7,7 @@
 
 from .based import BasedScreen
 from libs.automation_libs.ui_automation.mobile_auto_lib import KEYCODE_MAPPING
+from appium.webdriver.common.touch_action import TouchAction
 
 
 class ChatScreen(BasedScreen):
@@ -17,6 +18,8 @@ class ChatScreen(BasedScreen):
         self.send_message_button = \
             'xpath=//android.view.ViewGroup' \
             '[@content-desc="chatDetail_sendMessage"]'
+        self.reply_button = \
+            'xpath=//android.view.ViewGroup[@content-desc="reply"]'
 
     def click_on_chat_box(self):
         self.driver.logger.info("Click on Chat box")
@@ -46,3 +49,15 @@ class ChatScreen(BasedScreen):
         device_time = self.driver.driver.get_device_time("HH:mm")
         print(device_time)
         return message, device_time
+
+    def reply_message(self, message_to_reply: str, reply_message):
+        actions = TouchAction(self.driver.driver)
+        message_locator = \
+            f'//android.widget.TextView[@content-desc="{message_to_reply}"]'
+        self.driver.wait_explicit(condition="presence_of_element_located",
+                                  locator=f'xpath={message_locator}')
+        message_element = self.driver.get_element(f'xpath={message_locator}')
+        actions.long_press(message_element)
+        actions.perform()
+        self._click_on_locator(locator=self.reply_button)
+        self.send_message(message=reply_message)

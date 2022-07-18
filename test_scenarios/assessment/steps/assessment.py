@@ -74,6 +74,9 @@ def step_impl(context):
 
     # Send message to User 2
     ChatScreen().send_message(message=TEST_MESSAGE)
+    # Reply message
+    ChatScreen().reply_message(message_to_reply=TEST_MESSAGE,
+                               reply_message=REPLY_TEST_MESSAGE)
     return True
 
 
