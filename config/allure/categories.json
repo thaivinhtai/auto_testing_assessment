@@ -1,0 +1,28 @@
+[
+  {
+    "name": "Passed",
+    "matchedStatuses": ["passed"]
+  },
+  {
+    "name": "Not yet executed",
+    "matchedStatuses": ["skipped"]
+  },
+  {
+    "name": "Failed with defect",
+    "matchedStatuses": ["failed"],
+    "messageRegex": ".*[Dd][Ee][Ff][Ee][Cc][Tt][:-].*"
+  },
+  {
+    "name": "Outdated tests",
+    "matchedStatuses": ["broken"],
+    "traceRegex": ".*FileNotFoundException.*"
+  },
+  {
+    "name": "Total failure",
+    "matchedStatuses": ["failed"]
+  },
+  {
+    "name": "Test defects",
+    "matchedStatuses": ["broken"]
+  }
+]
