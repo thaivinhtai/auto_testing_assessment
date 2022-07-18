@@ -2,7 +2,6 @@ wheel
 requests==2.28.1
 allure-behave==2.9.45
 allure-python-commons==2.9.45
-allure-robotframework==2.9.45
 Appium-Python-Client==2.2.0
 behave==1.2.6
 chromedriver-autoinstaller==0.3.1

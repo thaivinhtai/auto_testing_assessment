@@ -12,9 +12,6 @@ This module handles call to other processes.
         +   copy_files(source_path: str, des_path: str) -> None
                 Copy all items of a folder to other folder.
 
-        +   execute_robot_test_cases(*args) -> None
-                Execute robot test cases.
-
         +   generate_allure_report() -> None
                 Generate allure report
 
@@ -29,7 +26,7 @@ This module handles call to other processes.
 
 """
 
-from os import kill, environ, system, listdir, path, name, mkdir, remove, chdir
+from os import kill, environ, system, listdir, path, name, mkdir, chdir
 
 if name == "posix":
     from os import O_NONBLOCK
@@ -50,9 +47,6 @@ import sys
 import contextlib
 
 from typing import Union
-
-from allure_robotframework import allure_robotframework
-from robot import run as robot_run, rebot
 
 from behave.__main__ import main as behave_main
 from behave.step_registry import registry
@@ -173,113 +167,6 @@ def copy_files(source_path: str, des_path: str, symlinks: bool = False,
             copy2(source, dest)
 
 
-def execute_robot_test_cases(robot_params: list, debug: bool = False,
-                             stop_on_failure: bool = False,
-                             retry_times: int = 1) -> None:
-    """Execute robot test cases.
-
-    This function call robot as sub-subprocess, execute robot test cases and
-    export log.
-
-    Parameters
-    ----------
-    debug : bool
-        True to debug.
-    stop_on_failure : Immediately stop the test script.
-    robot_params : list
-        List of arguments to put into robot sub-process.
-    retry_times : int
-        The amount of times to retry test cases when they are failed.
-
-    Returns
-    -------
-    None
-    """
-
-    class LogToConsoleAndFile:
-        @staticmethod
-        def flush():
-            stdout.flush()
-            open(
-                f'{RuntimeVariable.CURRENT_LOG_DIR}/execution.log', 'a+'
-            ).flush()
-
-        @staticmethod
-        def write(text):
-            execution_log = open(
-                f'{RuntimeVariable.CURRENT_LOG_DIR}/execution.log', 'a+'
-            )
-            execution_log.write(text)
-            stdout.write(text)
-
-    log_level = "INFO:INFO"
-    if debug:
-        log_level = "TRACE:TRACE"
-
-    robot_file = robot_params[0]
-    params = robot_params[1]
-    robot_run(
-        robot_file, **params, loglevel=log_level,
-        listener=allure_robotframework(
-            RuntimeVariable.CURRENT_ALLURE_RESULT_DIR),
-        outputdir=RuntimeVariable.CURRENT_LOG_DIR,
-        stdout=LogToConsoleAndFile, stderr=LogToConsoleAndFile,
-        exitonfailure=stop_on_failure, exitonerror=stop_on_failure,
-        log=f'{RuntimeVariable.CURRENT_LOG_DIR}/log.html',
-        output=f'{RuntimeVariable.CURRENT_LOG_DIR}/output.xml'
-    )
-
-    if not debug and not stop_on_failure:
-        if retry_times > 0:
-            copyfile(
-                f'{RuntimeVariable.CURRENT_LOG_DIR}/output.xml',
-                f'{RuntimeVariable.CURRENT_LOG_DIR}/output-0.xml')
-        params.pop('include', None)
-        params.pop('test', None)
-        for i in range(retry_times):
-            robot_run(
-                robot_file, **params, loglevel=log_level,
-                listener=
-                allure_robotframework(
-                    RuntimeVariable.CURRENT_ALLURE_RESULT_DIR),
-                outputdir=RuntimeVariable.CURRENT_LOG_DIR,
-                stdout=LogToConsoleAndFile, stderr=LogToConsoleAndFile,
-                log=f'{RuntimeVariable.CURRENT_LOG_DIR}/'
-                    f'log-rerun-{i + 1}.html',
-                rerunfailed=
-                f'{RuntimeVariable.CURRENT_LOG_DIR}/output-{i}.xml',
-                output=f'{RuntimeVariable.CURRENT_LOG_DIR}/'
-                f'output-{i +  1}.xml'
-            )
-
-    # Collect all output file after run
-    list_output_file = []
-    for file_ in listdir(RuntimeVariable.CURRENT_LOG_DIR):
-        if file_.startswith('output'):
-            list_output_file.append(
-                f'{RuntimeVariable.CURRENT_LOG_DIR}/{file_}'
-            )
-
-    # Merge all the output
-    rebot(output=f'{RuntimeVariable.CURRENT_LOG_DIR}/output.xml',
-          log=f'{RuntimeVariable.CURRENT_LOG_DIR}/log-final.html',
-          report=f'{RuntimeVariable.CURRENT_LOG_DIR}/'
-                 f'report-final.html',
-          merge=True, *list_output_file)
-
-    # Remove redundant output file
-    list_output_file.remove(
-        f'{RuntimeVariable.CURRENT_LOG_DIR}/output.xml'
-    )
-    [remove(file_) for file_ in list_output_file]
-
-    copyfile(ALLURE_CATEGORIES,
-             f"{RuntimeVariable.CURRENT_ALLURE_RESULT_DIR}/categories.json")
-    copyfile(ALLURE_ENVIRONMENT,
-             f"{RuntimeVariable.CURRENT_ALLURE_RESULT_DIR}/\
-environment.properties")
-
-
 def execute_behave_test_cases(
         debug: bool = False, stop_on_failure: bool = False) -> None:
     """Execute behave test cases.
@@ -366,7 +253,7 @@ def execute_behave_test_cases(
         f"{RuntimeVariable.CURRENT_ALLURE_RESULT_DIR}/environment.properties")
 
 
-def create_latest_combined_log(behave: bool = True) -> None:
+def create_latest_combined_log() -> None:
     """Create latest combined log.
 
     Combine all output.xml from all current execution suite in to one xml.
@@ -380,15 +267,6 @@ def create_latest_combined_log(behave: bool = True) -> None:
     if not path.exists(latest_combined_log_path):
         mkdir(f"{LOG_DIR}/latest_combined_log")
 
-    if not behave:
-        if path.exists(f"{latest_combined_log_path}/robot"):
-            rmtree(f"{latest_combined_log_path}/robot")
-
-        mkdir(f"{latest_combined_log_path}/robot")
-        rebot(output=f'{latest_combined_log_path}/robot/output.xml',
-              log=f'{latest_combined_log_path}/robot/log.html',
-              report=f'{latest_combined_log_path}/robot/report.html',
-              xunit=f'{latest_combined_log_path}/robot/report.xml')
     collect_current_allure_result_and_generate_report()
 
 

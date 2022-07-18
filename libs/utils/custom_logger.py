@@ -6,7 +6,6 @@ Custom logging module.
 """
 
 from robot.api import logger
-from robot.libraries.BuiltIn import BuiltIn
 from datetime import datetime
 from allure import attach, attachment_type
 
@@ -76,7 +75,7 @@ class CustomLogger:
         None
         """
         current = datetime.now().strftime("%Y-%m-%d %H-%M-%S.%f")
-        beginning_space = "        " if ARGUMENTS.run_behave else  ""
+        beginning_space = "        "
         time_stamp_prefix = beginning_space + current + ' - ' + level + ' - '
         if not timestamp:
             time_stamp_prefix = ''
@@ -85,7 +84,7 @@ class CustomLogger:
             f'{RuntimeVariable.CURRENT_LOG_DIR}/execution.log', 'a+'
         )
         execution_log.write(time_stamp_prefix + message + '\n')
-        if ARGUMENTS.run_behave and ARGUMENTS.debug:
+        if ARGUMENTS.debug:
             attach(time_stamp_prefix + message,
                    attachment_type=attachment_type.TEXT)
 
@@ -171,5 +170,4 @@ class CustomLogger:
         return self.__current_test_name
 
 
-LOGGER = CustomLogger() if ARGUMENTS.run_behave \
-    else CustomLogger(BuiltIn().get_variable_value("${TEST_NAME}"))
+LOGGER = CustomLogger()

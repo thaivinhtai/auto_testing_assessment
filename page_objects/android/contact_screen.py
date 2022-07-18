@@ -30,8 +30,8 @@ class ContactScreen(BasedScreen):
                                 f'keyword "{keyword}"')
         self.search_for_user(username=keyword)
         result_xpath = f'xpath=//*[contains(@content-desc, "{keyword}")]'
-        self.driver.wait_explicit(condition="presence_of_all_elements_located",
-                                  locator=result_xpath)
+        self.driver.wait_explicit(condition="presence_of_element_located",
+                                  locator=result_xpath, timeout=10)
         result = self.driver.get_elements(result_xpath)
         if len(result) > 0:
             result[0].click()

@@ -24,13 +24,15 @@ class ChatScreen(BasedScreen):
 
     def type_message(self, message: str):
         self.driver.logger.info("Type message")
+        index = 0
         for char_ in message:
-            if char_.isupper():
+            if char_.isupper() and index != 0:
                 self.driver.driver.press_keycode(
                     KEYCODE_MAPPING.get("shift_left")
                 )
             self.driver.driver.press_keycode(
                 KEYCODE_MAPPING.get(char_.lower()))
+            index += 1
 
     def click_on_send_message_button(self):
         self.driver.logger.info("Click on Send message button")
@@ -41,6 +43,6 @@ class ChatScreen(BasedScreen):
         self.click_on_chat_box()
         self.type_message(message=message)
         self.click_on_send_message_button()
-        device_time = self.driver.driver.device_time
+        device_time = self.driver.driver.get_device_time("HH:mm")
         print(device_time)
         return message, device_time

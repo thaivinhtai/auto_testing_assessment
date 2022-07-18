@@ -10,7 +10,7 @@ from os import name
 from shutil import copyfile
 
 from .process_executor import run_android_emulator, \
-    execute_behave_test_cases, execute_robot_test_cases, run_appium_server,\
+    execute_behave_test_cases, run_appium_server,\
     run_allure_report_server, create_latest_combined_log
 from .log_dirs_generator import generate_current_time_execution_log_dir
 from .runtime_variable_namespace import AppiumProperties, RuntimeVariable
@@ -29,28 +29,24 @@ def execute_test_cases() -> None:
     None
     """
     debug = ARGUMENTS.debug
-    run_behave = ARGUMENTS.run_behave
 
     appium_properties = AppiumProperties(int(ARGUMENTS.appium_port))
     ARGUMENTS.appium_properties = appium_properties
     platform_ver = ARGUMENTS.android_ver
     mobile_device = ARGUMENTS.device_name
 
-    generate_current_time_execution_log_dir(run_behave)
+    generate_current_time_execution_log_dir()
 
     emulator_session = run_android_emulator(
         device_name=mobile_device, debug=debug, version=platform_ver
     )
     appium_session, appium_log = run_appium_server(appium_properties)
 
-    test_runner = execute_robot_test_cases
-    if run_behave:
-        test_runner = execute_behave_test_cases
-
-    test_runner(debug=debug, stop_on_failure=ARGUMENTS.stop_on_failure)
+    execute_behave_test_cases(debug=debug,
+                              stop_on_failure=ARGUMENTS.stop_on_failure)
 
     # Export latest combined logs
-    create_latest_combined_log(behave=run_behave)
+    create_latest_combined_log()
 
     if appium_session:
         appium_log.flush()

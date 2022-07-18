@@ -39,8 +39,6 @@ class AbstractDriver(ABC):
         self.implicitly_wait = 5
         self.default_explicit_wait = 10
         self.context_by = context_by
-        self.current_test_name = BuiltIn().get_variable_value("${TEST NAME}") \
-            if not ARGUMENTS.run_behave else ""
         self.element_mapping = {
             'xpath': self.context_by.XPATH,
             'id': self.context_by.ID,
@@ -166,7 +164,7 @@ class AbstractDriver(ABC):
         None
         """
         current_time = datetime.now().strftime("%H-%M-%S")
-        screenshot_name = f"{self.current_test_name}_{current_time}.png"
+        screenshot_name = f"{current_time}.png"
         screenshot_path = f"{RuntimeVariable.CURRENT_SCREENSHOT_DIR}/" \
                           f"{screenshot_name}"
         while "'" in screenshot_path:

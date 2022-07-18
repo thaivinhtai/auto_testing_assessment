@@ -54,8 +54,6 @@ def __get_args() -> argparse.Namespace:
     parser.add_argument('--retry-times', required=False, default=2,
                         help="The amount of times to be re-run when test cases"
                              "failed, default=2")
-    parser.add_argument('--run-behave', default=True, action='store_true',
-                        help='Run as Behave framework.')
     return parser.parse_args()
 
 

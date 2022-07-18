@@ -16,7 +16,7 @@ def main() -> None:
     """
 
     # Import arguments parser, test cases executor
-    from libs.utils import ARGUMENTS, execute_test_cases
+    from libs.utils import execute_test_cases
 
     # Run test cases
     execute_test_cases()
